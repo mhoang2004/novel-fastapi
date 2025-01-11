@@ -5,6 +5,8 @@ import { Link, useParams } from 'react-router-dom'
 import Loading from '../components/Loading'
 import ChapterList from '../components/ChapterList'
 
+import axiosInstance from '../api/axiosInstance'
+
 const BookDetails = () => {
     const { bookId } = useParams()
 
@@ -14,6 +16,10 @@ const BookDetails = () => {
 
     const [comment, setComment] = useState('')
     const [isCommentDisabled, setIsCommentDisabled] = useState(true)
+    const [hoveredStar, setHoveredStar] = useState(0)
+
+    const handleMouseEnter = (index) => setHoveredStar(index)
+    const handleMouseLeave = () => setHoveredStar(parseInt(book.rating.averageRating))
 
     const handleCommentChange = (e) => {
         const value = e.target.value
@@ -26,11 +32,21 @@ const BookDetails = () => {
         setComment('')
     }
 
+    const handleRating = async (bookId, star) => {
+        const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/ratings`, {
+            book_id: bookId,
+            star,
+        })
+
+        alert(response.data.message)
+    }
+
     useEffect(() => {
         const fetchBook = async () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/books/${bookId}`)
                 setBook(response.data)
+                setHoveredStar(parseInt(response.data.rating.averageRating))
             } catch (err) {
                 setError(err.message)
             } finally {
@@ -118,16 +134,31 @@ const BookDetails = () => {
                         <hr className="my-4" />
                         <div className="flex justify-center">
                             <a className="flex space-x-1">
-                                <i className="text-yellow-400 fa-solid fa-star"></i>
-                                <i className="text-yellow-400 fa-solid fa-star"></i>
-                                <i className="text-yellow-400 fa-solid fa-star"></i>
-                                <i className="text-yellow-400 fa-solid fa-star"></i>
-                                <i className="fa-solid fa-star"></i>
+                                {Array.from({ length: 5 }, (_, index) => {
+                                    const isFilled = index < hoveredStar
+                                    return (
+                                        <i
+                                            key={index}
+                                            className={`fa-solid fa-star cursor-pointer ${
+                                                isFilled ? 'text-yellow-400' : ''
+                                            }`}
+                                            onMouseEnter={() => handleMouseEnter(index + 1)}
+                                            onMouseLeave={handleMouseLeave}
+                                            onClick={() => handleRating(book._id, index + 1)}
+                                        ></i>
+                                    )
+                                })}
                             </a>
                         </div>
                         <p className="mt-2">
-                            Rating: <b>{book.rating ? book.rating : '0.0'}</b>/5.0 from{' '}
-                            <b>{book.votes ? book.rating : 0}</b> people
+                            Rating:{' '}
+                            <b>
+                                {book.rating.averageRating
+                                    ? parseFloat(book.rating.averageRating).toFixed(1)
+                                    : '0.0'}
+                            </b>
+                            /5.0 from <b>{book.rating.ratingCount ? book.rating.ratingCount : 0}</b>{' '}
+                            people
                         </p>
                     </div>
 

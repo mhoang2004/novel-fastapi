@@ -37,3 +37,8 @@ class ChapterInsert(Chapter):
     chapterName: str
     content: str
     price: float = 0
+
+
+class RatingInput(BaseModel):
+    book_id: str
+    star: int

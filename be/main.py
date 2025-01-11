@@ -1,4 +1,4 @@
-from models import Token, User, Book, PendingBookRequest, ChapterInsert
+from models import Token, User, Book, PendingBookRequest, ChapterInsert, RatingInput
 
 
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
@@ -31,9 +31,25 @@ def read_root():
 
 
 @app.get("/books")
-async def get_books():
-    books = await dal.get_books()
+async def get_books(sort: str | None = None):
+    print(sort)
+    books = await dal.get_books(sort_by=sort)
     return books
+
+
+@app.post("/ratings")
+async def add_rating(input: RatingInput, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    try:
+        res = await dal.add_rating(input.book_id, user["_id"], input.star)
+        if res:
+            return {"message": "Thank for your rating", "rating_id": res}
+        return {"message": "You have already rated"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/pending_books")
@@ -155,7 +171,6 @@ async def store_chapter(chapter: ChapterInsert, access_token: str = Depends(oaut
             raise HTTPException(
                 status_code=403, detail="The book is not yours")
 
-        print("hi")
         return {"message": "Book stored successfully", "chapter_id": inserted_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -27,6 +27,7 @@ user_collection = db["users"]
 book_collection = db["novels"]
 genre_collection = db["genres"]
 chapter_collection = db["chapters"]
+rating_collection = db["ratings"]
 
 
 async def get_users():
@@ -61,7 +62,30 @@ async def get_chapter(book_id, chapter_num):
     return chapter
 
 
-async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None):
+async def get_rating(book_id):
+    pipeline = [
+        {"$match": {"novel_id": ObjectId(book_id)}},
+        {
+            "$group": {
+                "_id": "$novel_id",
+                "average_rating": {"$avg": "$rating"},
+                "rating_count": {"$sum": 1}
+            }
+        }
+    ]
+
+    result = await rating_collection.aggregate(pipeline).to_list(length=1)
+
+    if result:
+        return {
+            "averageRating": result[0]["average_rating"],
+            "ratingCount": result[0]["rating_count"]
+        }
+    else:
+        return {"averageRating": 0, "ratingCount": 0}
+
+
+async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None, sort_by=None):
     query = {"is_valid": is_valid}
 
     # Add title filter
@@ -81,14 +105,24 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
             raise ValueError(f"Invalid author ID: {author}") from e
 
     books = book_collection.find(query).limit(limit)
-    result = []
 
+    result = []
     async for book in books:
+        book["rating"] = await get_rating(book["_id"])
+
         result.append({
             "_id": str(book["_id"]),
             "title": book.get("title", ""),
             "cover": book.get("cover", ""),
+            "rating": book["rating"],
+            "updated_at": book.get("updated_at", ""),
         })
+
+    # Sort the books based on the sort_by parameter
+    if sort_by == "updated_at":
+        result.sort(key=lambda x: x["updated_at"], reverse=True)
+    else:
+        result.sort(key=lambda x: x["rating"]["averageRating"], reverse=True)
 
     return result
 
@@ -168,6 +202,7 @@ async def get_book(book_id):
             })
 
         book["_id"] = str(book["_id"])
+        book["rating"] = await get_rating(book["_id"])
         book["author"] = author["name"] if author["name"] else author["username"]
         book["genres"] = genre_names
         book["chapters"] = chapters
@@ -249,11 +284,38 @@ async def store_temp_novel(book, user_id):
 async def delete_novel_and_chapters(book_id: str):
     book = await book_collection.find_one({"_id": ObjectId(book_id)})
     db["fs.files"].delete_one({"_id": book["cover"]})
-    res = db["fs.chunks"].delete_many({"files_id": book["cover"]})
-    print(res)
+    db["fs.chunks"].delete_many({"files_id": book["cover"]})
 
     book_collection.delete_one({"_id": ObjectId(book_id)})
     chapters_deleted = chapter_collection.delete_many(
         {"novel_id": ObjectId(book_id)})
 
     return str(chapters_deleted)
+
+
+async def add_rating(book_id: str, user_id: str, star: int):
+    print(book_id, user_id, star)
+
+    try:
+        if not (0 <= star <= 5):
+            raise ValueError("Rating must be between 0 and 5")
+
+        existing_rating = await rating_collection.find_one({
+            "novel_id": ObjectId(book_id),
+            "user_id": ObjectId(user_id)
+        })
+
+        if existing_rating:
+            return None
+
+        rating_doc = {
+            "novel_id": ObjectId(book_id),
+            "user_id": ObjectId(user_id),
+            "rating": star
+        }
+
+        result = await rating_collection.insert_one(rating_doc)
+
+        return str(result.inserted_id)
+    except Exception as e:
+        raise Exception(f"Failed to add rating: {str(e)}")

@@ -110,7 +110,7 @@ const LogIn = () => {
                                 <path d="...google icon path..." />
                             </svg>
                         </span>
-                        <img src="./google_icon.png" width="20" />
+                        <img src="/google_icon.png" width="20" />
                         <span className="p-1">Sign in with Google</span>
                     </button>
                 </div>

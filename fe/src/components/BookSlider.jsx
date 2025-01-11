@@ -9,7 +9,7 @@ import { Navigation, Autoplay } from 'swiper/modules'
 import BookCard from '../components/BookCard'
 import '../styles/BookSlider.css'
 
-const BookSlider = ({ books }) => {
+const BookSlider = ({ books, name = '' }) => {
     return (
         <Swiper
             breakpoints={{
@@ -45,7 +45,7 @@ const BookSlider = ({ books }) => {
             {books
                 .filter((book) => book)
                 .map((book) => (
-                    <SwiperSlide key={book.id}>
+                    <SwiperSlide key={`${name}-${book._id}`}>
                         <BookCard book={book} />
                     </SwiperSlide>
                 ))}

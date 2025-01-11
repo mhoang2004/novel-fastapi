@@ -26,14 +26,10 @@ const Account = () => {
                         <p className="mt-2">
                             <span className="font-bold">
                                 {user.is_admin && (
-                                    <div className="inline-block bg-blue-400 rounded p-1">
-                                        Admin
-                                    </div>
+                                    <p className="inline-block bg-blue-400 rounded p-1">Admin</p>
                                 )}
                                 {user.is_author && (
-                                    <div className="inline-block bg-green-400 rounded p-1">
-                                        Author
-                                    </div>
+                                    <p className="inline-block bg-green-400 rounded p-1">Author</p>
                                 )}{' '}
                                 {user.username}
                             </span>

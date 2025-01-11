@@ -4,6 +4,7 @@ import axios from 'axios'
 
 import BookSlider from '../components/BookSlider'
 import Banner from '../components/Banner'
+import SocialBanner from '../components/SocialBanner'
 import Loading from '../components/Loading'
 
 const Home = () => {
@@ -35,10 +36,17 @@ const Home = () => {
             <Banner />
             <div className="container mx-auto min-h-screen">
                 <h2 className="font-bold my-6 text-xl uppercase">Hot Books 🔥</h2>
-                <div className="">{loading ? <Loading /> : <BookSlider books={hotBooks} />}</div>
+                <div className="min-h-64">
+                    {loading ? <Loading /> : <BookSlider books={hotBooks} name="hot" />}
+                </div>
 
                 <h2 className="font-bold my-6 text-xl uppercase">New Books ⚡</h2>
-                <div className="">{loading ? <Loading /> : <BookSlider books={newbooks} />}</div>
+                <div className="min-h-64">
+                    {loading ? <Loading /> : <BookSlider books={newbooks} name="new" />}
+                </div>
+
+                <SocialBanner />
+                <img src="/bookstore-02.jpg" alt="" />
             </div>
         </>
     )

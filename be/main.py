@@ -32,7 +32,6 @@ def read_root():
 
 @app.get("/books")
 async def get_books(sort: str | None = None):
-    print(sort)
     books = await dal.get_books(sort_by=sort)
     return books
 
@@ -80,6 +79,13 @@ async def post_pending_book(request: PendingBookRequest, access_token: str = Dep
 async def get_author_books(access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
     books = await dal.get_books(author=user["_id"])
+    return books
+
+
+@app.get("/history")
+async def get_history(access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+    books = await dal.get_history(author=user["_id"])
     return books
 
 
@@ -156,7 +162,7 @@ async def store_temp_novel(book: Book, access_token: str = Depends(oauth2_scheme
     try:
         inserted_id = await dal.store_temp_novel(book, user["_id"])
 
-        return {"message": "Book stored successfully", "novel_id": inserted_id}
+        return {"message": "Book sent successfully", "novel_id": inserted_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

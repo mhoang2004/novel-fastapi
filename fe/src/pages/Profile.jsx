@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 import Account from '../components/Account'
+import History from '../components/History'
 import YourBook from '../components/YourBook'
 import BookForm from '../components/BookForm'
 import PendingBook from '../components/PendingBook'
@@ -54,14 +55,14 @@ const Profile = () => {
                     </li>
                     <li className="border-b-2 hover:bg-blue-300">
                         <button
-                            onClick={() => handleTabClick('reading')}
+                            onClick={() => handleTabClick('history')}
                             className={`w-full text-left px-4 py-2 rounded-lg ${
-                                selectedTab === 'reading'
+                                selectedTab === 'history'
                                     ? 'bg-blue-500 text-white'
                                     : 'bg-transparent text-gray-700'
                             }`}
                         >
-                            Reading Books
+                            History
                         </button>
                     </li>
 
@@ -130,12 +131,7 @@ const Profile = () => {
 
             <div className="w-3/4 p-4">
                 {selectedTab === 'overview' && <Account />}
-                {selectedTab === 'reading' && (
-                    <div className="min-h-screen">
-                        <p>Reading... books</p>
-                    </div>
-                )}
-
+                {selectedTab === 'history' && <History />}
                 {selectedTab === 'yourbook' && <YourBook />}
                 {selectedTab === 'createbook' && <BookForm />}
                 {selectedTab === 'pendingbook' && <PendingBook />}

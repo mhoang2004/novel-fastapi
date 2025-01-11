@@ -85,6 +85,29 @@ async def get_rating(book_id):
         return {"averageRating": 0, "ratingCount": 0}
 
 
+async def get_history(limit=20, author=None):
+    query = {}
+
+    if author:
+        try:
+            query["author"] = ObjectId(author)
+        except Exception as e:
+            raise ValueError(f"Invalid author ID: {author}") from e
+
+    books = book_collection.find(query).limit(limit)
+
+    result = []
+    async for book in books:
+        result.append({
+            "_id": str(book["_id"]),
+            "title": book.get("title", ""),
+            "is_valid": book["is_valid"],
+            "updated_at": book.get("updated_at", ""),
+        })
+
+    return result
+
+
 async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None, sort_by=None):
     query = {"is_valid": is_valid}
 
@@ -115,6 +138,7 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
             "title": book.get("title", ""),
             "cover": book.get("cover", ""),
             "rating": book["rating"],
+            "is_valid": book["is_valid"],
             "updated_at": book.get("updated_at", ""),
         })
 

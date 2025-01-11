@@ -16,7 +16,7 @@ const Header = () => {
         <header className="flex items-center justify-between p-4 px-5 bg-white text-dark">
             {/* Logo */}
             <Link to="/" className="flex items-center">
-                <img src="./logo.png" alt="Logo" className="h-10" />
+                <img src="/logo.png" alt="Logo" className="h-10" />
                 <span className="font-semibold">Your Novel</span>
             </Link>
 

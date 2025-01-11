@@ -28,6 +28,7 @@ book_collection = db["novels"]
 genre_collection = db["genres"]
 chapter_collection = db["chapters"]
 rating_collection = db["ratings"]
+comment_collection = db["comments"]
 
 
 async def get_users():
@@ -85,11 +86,30 @@ async def get_rating(book_id):
         return {"averageRating": 0, "ratingCount": 0}
 
 
+async def get_comment(book_id: str, limit=10):
+    comments_cursor = comment_collection.find(
+        {"novel_id": ObjectId(book_id)}
+    ).sort("timestamp", -1).limit(limit)
+
+    comments = []
+    async for comment in comments_cursor:
+
+        user = await get_user(_id=comment["user_id"])
+        comment["user"] = user["name"] if user["name"] else user["username"]
+
+        comment["_id"] = str(comment["_id"])
+        comment["novel_id"] = str(comment["novel_id"])
+        comment["user_id"] = str(comment["user_id"])
+        comments.append(comment)
+
+    return comments
+
+
 async def get_history(limit=20, author=None):
     query = {}
-
     if author:
         try:
+            # Ensure author is a valid ObjectId
             query["author"] = ObjectId(author)
         except Exception as e:
             raise ValueError(f"Invalid author ID: {author}") from e
@@ -318,8 +338,6 @@ async def delete_novel_and_chapters(book_id: str):
 
 
 async def add_rating(book_id: str, user_id: str, star: int):
-    print(book_id, user_id, star)
-
     try:
         if not (0 <= star <= 5):
             raise ValueError("Rating must be between 0 and 5")
@@ -339,6 +357,22 @@ async def add_rating(book_id: str, user_id: str, star: int):
         }
 
         result = await rating_collection.insert_one(rating_doc)
+
+        return str(result.inserted_id)
+    except Exception as e:
+        raise Exception(f"Failed to add rating: {str(e)}")
+
+
+async def add_comment(book_id: str, user_id: str, comment: str):
+    try:
+        comment_doc = {
+            "novel_id": ObjectId(book_id),
+            "user_id": ObjectId(user_id),
+            "timestamp": datetime.now(),
+            "content": comment
+        }
+
+        result = await comment_collection.insert_one(comment_doc)
 
         return str(result.inserted_id)
     except Exception as e:

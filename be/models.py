@@ -42,3 +42,8 @@ class ChapterInsert(Chapter):
 class RatingInput(BaseModel):
     book_id: str
     star: int
+
+
+class CommentInput(BaseModel):
+    book_id: str
+    comment: str

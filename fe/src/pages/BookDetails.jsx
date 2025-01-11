@@ -12,14 +12,29 @@ const BookDetails = () => {
 
     const [book, setBook] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [commentLoading, setCommentLoading] = useState(true)
     const [error, setError] = useState(null)
 
     const [comment, setComment] = useState('')
+    const [comments, setComments] = useState([])
     const [isCommentDisabled, setIsCommentDisabled] = useState(true)
     const [hoveredStar, setHoveredStar] = useState(0)
 
     const handleMouseEnter = (index) => setHoveredStar(index)
     const handleMouseLeave = () => setHoveredStar(parseInt(book.rating.averageRating))
+
+    const formatTimestamp = (timestamp) => {
+        const date = new Date(timestamp)
+        return date.toLocaleString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        })
+    }
 
     const handleCommentChange = (e) => {
         const value = e.target.value
@@ -27,8 +42,15 @@ const BookDetails = () => {
         setIsCommentDisabled(value.trim() === '')
     }
 
-    const handleCommentSubmit = () => {
-        console.log('Comment submitted: ', comment)
+    const handleCommentSubmit = async () => {
+        await axiosInstance.post(`${import.meta.env.VITE_API_URL}/comments`, {
+            book_id: bookId,
+            comment,
+        })
+
+        // fetch comment again
+        await fetchComments()
+
         setComment('')
     }
 
@@ -39,6 +61,18 @@ const BookDetails = () => {
         })
 
         alert(response.data.message)
+    }
+
+    const fetchComments = async () => {
+        try {
+            setCommentLoading(true)
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/comments/${bookId}`)
+            setComments(response.data)
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setCommentLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -55,11 +89,13 @@ const BookDetails = () => {
         }
 
         fetchBook()
+        fetchComments()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookId])
 
     if (loading)
         return (
-            <div className="min-h-screen text-center">
+            <div className="min-h-screen text-center mx-5">
                 <Loading />
             </div>
         )
@@ -80,7 +116,7 @@ const BookDetails = () => {
                     <span className="mr-1">Home</span>
                 </Link>
                 <span>/</span>
-                <Link to={`/books/${book._id}`} className="text-dark hover:text-gray-700">
+                <Link to={`/books/${bookId}`} className="text-dark hover:text-gray-700">
                     <span className="ml-1">{book.title}</span>
                 </Link>
             </div>
@@ -220,30 +256,30 @@ const BookDetails = () => {
                     </div>
                 </div>
 
-                {book.comments ? (
-                    <div className="comment-items mt-4">
-                        {book.comments.map((comment, index) => (
-                            <div key={index} className="flex items-start mt-4 space-x-4">
+                {comments.length === 0 && !commentLoading ? (
+                    <p className="text-center mb-5">No comment yet!</p>
+                ) : (
+                    <div className="comment-items my-4">
+                        {comments.map((comment, index) => (
+                            <div key={index} className="flex items-start my-4 space-x-4">
                                 <div>
                                     <img
-                                        src="../static/img/default-avt.jpg"
+                                        src="/default-avt.jpg"
                                         className="w-11 h-11 rounded-full"
                                         alt="avt"
                                     />
                                 </div>
 
                                 <div className="flex-1">
-                                    <span className="font-bold">MyBooks User</span>
+                                    <span className="font-bold">{comment.user}</span>
                                     <span className="text-sm text-gray-500 ml-2">
-                                        {comment.time_ago}
+                                        {formatTimestamp(comment.timestamp)}
                                     </span>
                                     <p className="mt-2 text-gray-800">{comment.content}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <p className="text-center mb-5">No comment yet!</p>
                 )}
             </div>
         </div>

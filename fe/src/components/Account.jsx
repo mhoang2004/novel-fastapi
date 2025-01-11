@@ -49,9 +49,9 @@ const Account = () => {
                     <hr />
 
                     {user.is_admin && (
-                        <>
+                        <div className="min-h-screen">
                             <div>Chart</div>
-                        </>
+                        </div>
                     )}
 
                     {user.is_author && <AuthorBooks />}

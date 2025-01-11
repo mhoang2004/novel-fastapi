@@ -53,20 +53,21 @@ const Profile = () => {
                             Account
                         </button>
                     </li>
-                    <li className="border-b-2 hover:bg-blue-300">
-                        <button
-                            onClick={() => handleTabClick('history')}
-                            className={`w-full text-left px-4 py-2 rounded-lg ${
-                                selectedTab === 'history'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-transparent text-gray-700'
-                            }`}
-                        >
-                            History
-                        </button>
-                    </li>
+                    {!user.is_admin && (
+                        <li className="border-b-2 hover:bg-blue-300">
+                            <button
+                                onClick={() => handleTabClick('history')}
+                                className={`w-full text-left px-4 py-2 rounded-lg ${
+                                    selectedTab === 'history'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-transparent text-gray-700'
+                                }`}
+                            >
+                                History
+                            </button>
+                        </li>
+                    )}
 
-                    {/* Create a book */}
                     {user.is_author && (
                         <li className='border-b-2 hover:bg-blue-300"'>
                             <button

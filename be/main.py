@@ -1,4 +1,3 @@
-from models import Token, User, Book, PendingBookRequest, ChapterInsert, RatingInput
 
 
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
@@ -6,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+import models
 import dal
 import auth
 
@@ -37,7 +37,7 @@ async def get_books(sort: str | None = None):
 
 
 @app.post("/ratings")
-async def add_rating(input: RatingInput, access_token: str = Depends(oauth2_scheme)):
+async def add_rating(input: models.RatingInput, access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
 
     try:
@@ -49,6 +49,25 @@ async def add_rating(input: RatingInput, access_token: str = Depends(oauth2_sche
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/comments")
+async def add_comment(input: models.CommentInput, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    try:
+        res = await dal.add_comment(input.book_id, user["_id"], input.comment)
+        return {"message": "Success", "comment_id": res}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/comments/{book_id}")
+async def get_comment(book_id: str):
+    comments = await dal.get_comment(book_id)
+    return comments
 
 
 @app.get("/pending_books")
@@ -65,7 +84,7 @@ async def get_pending_books(access_token: str = Depends(oauth2_scheme)):
 
 
 @app.post("/pending_book")
-async def post_pending_book(request: PendingBookRequest, access_token: str = Depends(oauth2_scheme)):
+async def post_pending_book(request: models.PendingBookRequest, access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
 
     if user and user["is_admin"]:
@@ -115,7 +134,7 @@ async def get_user_info(access_token: str = Depends(oauth2_scheme)):
     return user
 
 
-@app.post("/login", response_model=Token)
+@app.post("/login", response_model=models.Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     await auth.authenticate_user(form_data.username, form_data.password)
     access_token = auth.create_access_token(data={"sub": form_data.username})
@@ -129,7 +148,7 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 @app.post("/signup", status_code=201)
-async def signup(user: User):
+async def signup(user: models.User):
 
     # Check for existing user by email
     existing_user_by_email = await dal.get_user(email=user.email)
@@ -156,7 +175,7 @@ async def get_image(file_id: str):
 
 
 @app.post("/novels")
-async def store_temp_novel(book: Book, access_token: str = Depends(oauth2_scheme)):
+async def store_temp_novel(book: models.Book, access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
 
     try:
@@ -168,7 +187,7 @@ async def store_temp_novel(book: Book, access_token: str = Depends(oauth2_scheme
 
 
 @app.post("/chapter")
-async def store_chapter(chapter: ChapterInsert, access_token: str = Depends(oauth2_scheme)):
+async def store_chapter(chapter: models.ChapterInsert, access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
 
     try:

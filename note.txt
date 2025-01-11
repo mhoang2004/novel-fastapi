@@ -1,0 +1,70 @@
+Language Knowledge
+
+    Comprehensions
+
+    Iterators
+    
+    Generators
+    
+    Decorators
+    
+    Meta classes
+    
+    Context Managers
+
+    ------------
+    asynchoronous programming
+
+    global interperter lock
+
+    multiprocessing
+
+    multithreading
+
+    typical python convention
+
+    how to write pythonic code
+
+Data structures and Algorithms
+ 
+    heaps
+
+Basic Web Development
+
+API Development
+
+    rest API
+
+    http
+
+    tokens
+
+    JWT token
+
+    OAuth
+
+    how do you secure an API
+
+    rate limiting
+    
+    pydantic
+
+Databases
+
+    backup data
+    ORM (object relational mapping)
+    GraphQL
+
+Linux & Command Line
+
+
+Tooling
+
+    unit tests
+    integration tests
+    system tests
+
+Deployment
+
+    docker
+    ci / cd (git action)

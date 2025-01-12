@@ -7,3 +7,4 @@ motor
 pydantic
 boto3
 gunicorn
+python-multipart

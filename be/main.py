@@ -13,8 +13,9 @@ app = FastAPI()
 
 
 origins = [
-    "https://your-novels.netlify.app"
+    "https://your-novels.netlify.app/",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -28,6 +29,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 @app.get("/")
 def read_root():
+
     return {"Hello": "World"}
 
 

@@ -75,6 +75,18 @@ const BookDetails = () => {
         }
     }
 
+    const continueReading = () => {
+        const booksData = sessionStorage.getItem('booksData')
+        const storedBooksData = booksData ? JSON.parse(booksData) : []
+        const bookIndex = storedBooksData.findIndex((book) => book.book_id === bookId)
+
+        if (bookIndex !== -1) {
+            return `/books/${bookId}/${storedBooksData[bookIndex].chapter_number}`
+        }
+
+        return `/books/${bookId}/${1}`
+    }
+
     useEffect(() => {
         const fetchBook = async () => {
             try {
@@ -202,7 +214,7 @@ const BookDetails = () => {
 
                     <div className="text-center mt-5 space-x-4">
                         <Link
-                            to="/continue_reading/"
+                            to={continueReading()}
                             type="button"
                             className="bg-rose-600 text-white py-2 px-6 rounded-full hover:bg-violet-600"
                         >

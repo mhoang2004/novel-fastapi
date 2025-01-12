@@ -105,7 +105,10 @@ const ReadBook = () => {
                             Next Chapter
                         </button>
                     </div>
-                    <p className="m-6 text-2xl">{chapter.content}</p>
+
+                    <div className="min-h-screen">
+                        <p className="m-6 text-2xl ">{chapter.content}</p>
+                    </div>
 
                     <hr />
 

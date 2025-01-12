@@ -13,7 +13,7 @@ app = FastAPI()
 
 
 origins = [
-    "https://your-novels.netlify.app/",
+    "https://your-novels.netlify.app",
 ]
 
 app.add_middleware(

@@ -1,15 +1,24 @@
 import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
-
+import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../api/UserContext'
 
 const Header = () => {
     const { user, setUser } = useContext(UserContext)
     const [isOpen, setIsOpen] = useState(false)
+    const [search, setSearch] = useState('')
+    const navigate = useNavigate()
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken')
         setUser(null)
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault() // Prevent the default page reload
+        if (search.trim() !== '') {
+            navigate(`/search?q=${search}`)
+        }
     }
 
     return (
@@ -21,13 +30,15 @@ const Header = () => {
             </Link>
 
             {/* Search Bar Container */}
-            <div className="flex-grow mx-4 flex justify-center">
+            <form onSubmit={handleSubmit} className="flex-grow mx-4 flex justify-center">
                 <input
                     type="text"
                     placeholder="Search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     className="w-full max-w-md p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-            </div>
+            </form>
 
             {/* User Links */}
             <div className="flex items-center space-x-4">
@@ -39,7 +50,12 @@ const Header = () => {
                             className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-2 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                             <div className="flex items-center">
-                                <img src={`${user.avt}`} alt="" width={35} />
+                                <img
+                                    src={`${user.avt}`}
+                                    className="rounded-full p-1"
+                                    alt=""
+                                    width={35}
+                                />
                                 {user.username}
                                 <svg
                                     className={`ml-2 h-5 w-5 transform ${

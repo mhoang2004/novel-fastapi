@@ -1,19 +1,42 @@
 import { UserContext } from '../api/UserContext'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
 import AuthorBooks from './AuthorBooks'
+import axiosInstance from '../api/axiosInstance'
+
+import GenreStats from './GenreStats'
+import NovelStats from './NovelStats'
 
 const Account = () => {
     const { user } = useContext(UserContext)
     const navigate = useNavigate()
+
+    const [name, setName] = useState('')
 
     useEffect(() => {
         if (!user) {
             navigate('/login')
         }
     }, [user, navigate])
+
+    const handleSubmit = async (e) => {
+        e.preventDefault() // Prevent the form from reloading the page
+
+        if (!name.trim()) {
+            alert('Please enter a pen name!')
+            return
+        }
+
+        try {
+            await axiosInstance.post(`${import.meta.env.VITE_API_URL}/update-pen-name`, { name })
+            alert('Pen name updated successfully!')
+        } catch (error) {
+            console.error('Error:', error)
+            alert('An error occurred while updating your pen name.')
+        }
+    }
 
     return (
         <div className="p-4">
@@ -31,10 +54,28 @@ const Account = () => {
                                 {user.is_author && (
                                     <p className="inline-block bg-green-400 rounded p-1">Author</p>
                                 )}{' '}
-                                {user.username}
+                                {user.name ? user.name : user.username}
                             </span>
                         </p>
                     </div>
+
+                    {user.is_author && !user.name && (
+                        <form onSubmit={handleSubmit}>
+                            <div className="mt-5">
+                                <b>Name:</b>{' '}
+                                <input
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    type="text"
+                                    placeholder="your pen-name"
+                                    className="py-1 px-4 ml-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <button className="bg-blue-500 text-white font-medium ml-1 py-1 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                                    OK
+                                </button>
+                            </div>
+                        </form>
+                    )}
 
                     <p className="mt-5">
                         <b>User ID:</b> {user._id}
@@ -50,7 +91,8 @@ const Account = () => {
 
                     {user.is_admin && (
                         <div className="min-h-screen">
-                            <div>Chart</div>
+                            <GenreStats />
+                            <NovelStats />
                         </div>
                     )}
 

@@ -72,7 +72,7 @@ const PendingBook = () => {
                             <th className="px-4 py-2 border-b text-left">User</th>
                             <th className="px-4 py-2 border-b text-left">Book Name</th>
                             <th className="px-4 py-2 border-b text-left">Date</th>
-                            <th className="px-4 py-2 border-b text-left">Actions</th>
+                            <th className="px-4 py-2 border-b text-left">Action</th>
                         </tr>
                     </thead>
                     {loading ? (

@@ -1,17 +1,30 @@
 import { useState, useContext, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { gapi } from 'gapi-script'
+
+import GoogleLoginBtn from '../components/GoogleLoginBtn'
 import axiosInstance from '../api/axiosInstance'
 import { UserContext } from '../api/UserContext'
 
 const LogIn = () => {
+    const clientID = import.meta.env.VITE_GOOGLE_CLIENT_ID
     const { user } = useContext(UserContext)
     const navigate = useNavigate()
 
     useEffect(() => {
         if (user) {
             navigate('/')
+            return
         }
-    }, [user, navigate])
+
+        function start() {
+            gapi.client.init({
+                clientID: clientID,
+                scope: '',
+            })
+        }
+        gapi.load('client:auth2', start)
+    }, [user, navigate, clientID])
 
     const [formData, setFormData] = useState({ username: '', password: '' })
     const { loadUserInfo } = useContext(UserContext)
@@ -95,25 +108,8 @@ const LogIn = () => {
                     </button>
                 </form>
                 <div className="my-4 text-center text-gray-500">Or Sign Up Using</div>
-                <div className="flex flex-col space-y-2">
-                    <button
-                        onClick={() => alert('Sign in with Google')}
-                        className="w-full flex items-center justify-center border border-gray-300 py-2 px-4 rounded-md text-gray-700 hover:bg-gray-100 transition"
-                    >
-                        <span className="text-red-500 mr-2">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                            >
-                                <path d="...google icon path..." />
-                            </svg>
-                        </span>
-                        <img src="/google_icon.png" width="20" />
-                        <span className="p-1">Sign in with Google</span>
-                    </button>
-                </div>
+
+                <GoogleLoginBtn />
                 <div className="text-center mt-4 text-sm text-gray-500">
                     Don&apos;t have an account?{' '}
                     <Link to="/signup" className="text-blue-500 hover:underline">

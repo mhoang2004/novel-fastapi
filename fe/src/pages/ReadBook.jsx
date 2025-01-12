@@ -11,6 +11,24 @@ const ReadBook = () => {
     const [loading, setLoading] = useState(true)
     const [currChapter, setCurrChapter] = useState(Number(chapterNum))
 
+    const handleReadingBook = (bookName, bookId, chapterNumber) => {
+        const booksData = sessionStorage.getItem('booksData')
+        const storedBooksData = booksData ? JSON.parse(booksData) : []
+        const bookIndex = storedBooksData.findIndex((book) => book.book_id === bookId)
+
+        if (bookIndex !== -1) {
+            storedBooksData[bookIndex].chapter_number = chapterNumber
+        } else {
+            storedBooksData.push({
+                book_id: bookId,
+                book_name: bookName,
+                chapter_number: chapterNumber,
+            })
+        }
+
+        sessionStorage.setItem('booksData', JSON.stringify(storedBooksData))
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -18,6 +36,8 @@ const ReadBook = () => {
                     `${import.meta.env.VITE_API_URL}/books/${bookId}/chapters/${currChapter}`
                 )
                 setChapter(response.data)
+                console.log(response.data.book)
+                handleReadingBook(response.data.book.title, bookId, currChapter)
             } catch (error) {
                 console.error('Error fetching books:', error)
             } finally {
@@ -91,7 +111,9 @@ const ReadBook = () => {
 
                     <div className="flex justify-center mt-6">
                         <button
-                            onClick={() => setCurrChapter((prev) => prev - 1)}
+                            onClick={() => {
+                                setCurrChapter((prev) => prev - 1)
+                            }}
                             disabled={currChapter === 1}
                             className={`px-6 py-1 font-semibold rounded-lg shadow-md ${
                                 currChapter === 1
@@ -105,7 +127,10 @@ const ReadBook = () => {
                             <i className="fa-solid py-1 fa-bars text-2xl px-4"></i>
                         </button>
                         <button
-                            onClick={() => setCurrChapter((prev) => prev + 1)}
+                            onClick={() => {
+                                setCurrChapter((prev) => prev + 1)
+                                console.log('HI')
+                            }}
                             disabled={currChapter === chapter.book.numberChapter}
                             className={`px-6 py-1 font-semibold rounded-lg shadow-md ${
                                 currChapter === chapter.book.numberChapter

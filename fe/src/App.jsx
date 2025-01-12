@@ -5,6 +5,7 @@ import { UserProvider } from './api/UserContext'
 import Footer from './components/Footer'
 import Header from './components/Header'
 
+import SearchPage from './pages/SearchPage'
 import BookDetails from './pages/BookDetails'
 import ChapterForm from './pages/ChapterForm'
 import ReadBook from './pages/ReadBook'
@@ -27,6 +28,7 @@ function App() {
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/search" element={<SearchPage />} />
                     <Route path="/profile/:bookId" element={<ChapterForm />} />
                     <Route path="/books/:bookId" element={<BookDetails />} />
                     <Route path="/books/:bookId/:chapterNum" element={<ReadBook />} />

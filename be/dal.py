@@ -33,7 +33,7 @@ comment_collection = db["comments"]
 
 async def get_users():
     users = []
-    async for user in user_collection.find():
+    async for user in user_collection.find({"is_admin": False}):
         user["_id"] = str(user["_id"])
         users.append(user)
     return users
@@ -186,8 +186,8 @@ async def create_user(user, hashed_password):
         "username": user.username,
         "email": user.email,
         "hashed_password": hashed_password,
-        "avt": "./default-avt.jpg",
-        "name": None,
+        "avt": user.avt,
+        "name": user.name,
         "is_active": True,
         "is_admin": False,
         "is_author": False,
@@ -377,3 +377,63 @@ async def add_comment(book_id: str, user_id: str, comment: str):
         return str(result.inserted_id)
     except Exception as e:
         raise Exception(f"Failed to add rating: {str(e)}")
+
+
+async def update_user_name(user_id: str, name: str):
+    user_id_obj = ObjectId(user_id)
+
+    await user_collection.update_one(
+        {"_id": user_id_obj},
+        {"$set": {"name": name}}
+    )
+
+
+async def get_genre_stats():
+    stats = []
+    genres = genre_collection.find()
+
+    async for genre in genres:
+        count = await book_collection.count_documents(
+            {"genres": genre["_id"]})
+
+        stats.append({
+            "genre": {
+                "id": str(genre["_id"]),
+                "name": genre["name"],
+                "description": genre["description"],
+            },
+            "count": count
+        })
+
+    return stats
+
+
+async def get_novel_stats():
+    pipeline = [
+        {
+            "$project": {
+                "date": {
+                    "$dateToString": {
+                        "format": "%Y-%m-%d",
+                        "date": "$created_at"
+                    }
+                }
+            }
+        },
+        {
+            "$group": {
+                "_id": "$date",
+                "count": {"$sum": 1}
+            }
+        },
+        {
+            "$sort": {"_id": 1}  # Sort by date in ascending order
+        }
+    ]
+
+    stats = await book_collection.aggregate(pipeline).to_list(None)
+    formatted_stats = [{"date": stat["_id"],
+                        "count": stat["count"]} for stat in stats]
+
+    print(formatted_stats)
+    return formatted_stats

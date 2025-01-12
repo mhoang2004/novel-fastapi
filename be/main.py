@@ -31,8 +31,9 @@ def read_root():
 
 
 @app.get("/books")
-async def get_books(sort: str | None = None):
-    books = await dal.get_books(sort_by=sort)
+async def get_books(sort: str | None = None, title: str | None = None):
+    books = await dal.get_books(sort_by=sort, title=title)
+
     return books
 
 
@@ -213,3 +214,37 @@ async def delete_novel_and_chapters(book_id: str, access_token: str = Depends(oa
         }
     raise HTTPException(
         status_code=403, detail="You don't have the permission")
+
+
+@app.get("/get-users")
+async def get_users(access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    if user and user["is_admin"]:
+        users = await dal.get_users()
+        return users
+    raise HTTPException(
+        status_code=403, detail="You don't have the permission")
+
+
+@app.post("/update-pen-name")
+async def update_user_name(req: models.NameInput, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    if user:
+        await dal.update_user_name(user["_id"], req.name)
+        return {"message": "Successfully!!!"}
+    raise HTTPException(
+        status_code=403, detail="You don't have the permission")
+
+
+@app.get("/genre-stats")
+async def get_genre_stats():
+    return await dal.get_genre_stats()
+
+
+@app.get("/novel-stats")
+async def get_novel_stats():
+    formatted_stats = await dal.get_novel_stats()
+
+    return JSONResponse(content=formatted_stats)

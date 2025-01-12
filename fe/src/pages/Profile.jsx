@@ -7,6 +7,7 @@ import History from '../components/History'
 import YourBook from '../components/YourBook'
 import BookForm from '../components/BookForm'
 import PendingBook from '../components/PendingBook'
+import ManageUsers from '../components/ManageUsers'
 
 const Profile = () => {
     const { user } = useContext(UserContext)
@@ -136,11 +137,7 @@ const Profile = () => {
                 {selectedTab === 'yourbook' && <YourBook />}
                 {selectedTab === 'createbook' && <BookForm />}
                 {selectedTab === 'pendingbook' && <PendingBook />}
-                {selectedTab === 'manageuser' && (
-                    <>
-                        <div className="min-h-screen">Manage Users...</div>
-                    </>
-                )}
+                {selectedTab === 'manageuser' && <ManageUsers />}
             </div>
         </div>
     )

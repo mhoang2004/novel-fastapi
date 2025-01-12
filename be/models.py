@@ -10,6 +10,8 @@ class User(BaseModel):
     username: str
     email: str
     password: str
+    name: str = ''
+    avt: str = '/default-avt.jpg'
 
 
 class Chapter(BaseModel):
@@ -47,3 +49,7 @@ class RatingInput(BaseModel):
 class CommentInput(BaseModel):
     book_id: str
     comment: str
+
+
+class NameInput(BaseModel):
+    name: str

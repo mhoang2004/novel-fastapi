@@ -216,7 +216,7 @@ const BookDetails = () => {
                 CHAPTERS <hr />
             </h3>
 
-            <ChapterList bookId={book._id} chapters={book.chapters} />
+            <ChapterList bookId={book._id} bookName={book.title} chapters={book.chapters} />
 
             <h3 className="text-2xl font-bold dark:text-white mt-5">COMMENTS</h3>
             <div className="mt-5 mb-5">

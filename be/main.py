@@ -13,7 +13,7 @@ app = FastAPI()
 
 
 origins = [
-    "http://localhost:5173", "https://novel-fastapi.onrender.com"
+    "http://localhost:5173", "https://your-novels.netlify.app"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 

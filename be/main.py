@@ -13,7 +13,7 @@ app = FastAPI()
 
 
 origins = [
-    "http://localhost:5173",
+    "http://localhost:5173", "https://novel-fastapi.onrender.com"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -33,7 +33,6 @@ def read_root():
 @app.get("/books")
 async def get_books(sort: str | None = None, title: str | None = None):
     books = await dal.get_books(sort_by=sort, title=title)
-
     return books
 
 

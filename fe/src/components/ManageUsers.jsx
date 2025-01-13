@@ -19,6 +19,21 @@ const ManageUsers = () => {
         }
     }
 
+    const handleDeactiveUser = async (userId) => {
+        window.scrollTo(0, 0)
+
+        try {
+            await axiosInstance.post(`${import.meta.env.VITE_API_URL}/toggle-user-active`, {
+                user_id: userId,
+            })
+            fechUsers()
+        } catch (error) {
+            console.error('Error fetching books:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         fechUsers()
     }, [])
@@ -32,7 +47,7 @@ const ManageUsers = () => {
                         <th className="px-4 py-2 border-b text-left">User ID</th>
                         <th className="px-4 py-2 border-b text-left">User</th>
                         <th className="px-4 py-2 border-b text-left">Role</th>
-                        <th className="px-4 py-2 border-b text-left">Date</th>
+                        <th className="px-4 py-2 border-b text-left">Active</th>
                         <th className="px-4 py-2 border-b text-left">Action</th>
                     </tr>
                 </thead>
@@ -50,14 +65,29 @@ const ManageUsers = () => {
                                 <td className="px-4 py-2 border-b">
                                     {user.is_author ? 'Author' : 'User'}
                                 </td>
-                                <td className="px-4 py-2 border-b">{user.create_at}</td>
                                 <td className="px-4 py-2 border-b">
-                                    <button
-                                        onClick={() => alert('Deactive user')}
-                                        className="bg-red-500 text-white font-medium  px-4 rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-                                    >
-                                        Deactive
-                                    </button>
+                                    {user.is_active ? (
+                                        <span className="text-green-500">Active</span>
+                                    ) : (
+                                        <span className="text-red-500">Inactive</span>
+                                    )}
+                                </td>
+                                <td className="px-4 py-2 border-b">
+                                    {user.is_active ? (
+                                        <button
+                                            onClick={() => handleDeactiveUser(user._id)}
+                                            className="w-28 bg-red-500 text-white font-medium  px-4 rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition"
+                                        >
+                                            Deactive
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleDeactiveUser(user._id)}
+                                            className="w-28 bg-green-500 text-white font-medium  px-4 rounded shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition"
+                                        >
+                                            Active
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

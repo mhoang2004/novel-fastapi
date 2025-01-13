@@ -173,7 +173,7 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
 
 async def get_user(**kargs):
     user = await user_collection.find_one(kargs)
-    if user:
+    if user and user["is_active"]:
         user["_id"] = str(user["_id"])
         return user
 
@@ -437,5 +437,16 @@ async def get_novel_stats():
     formatted_stats = [{"date": stat["_id"],
                         "count": stat["count"]} for stat in stats]
 
-    print(formatted_stats)
     return formatted_stats
+
+
+async def toggle_user_active(user_id):
+
+    user = await user_collection.find_one({"_id": ObjectId(user_id)})
+
+    if user:
+        new_status = not user.get("is_active", False)
+        await user_collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"is_active": new_status}}
+        )

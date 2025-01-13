@@ -257,3 +257,10 @@ async def get_novel_stats():
     formatted_stats = await dal.get_novel_stats()
 
     return JSONResponse(content=formatted_stats)
+
+
+@app.post("/toggle-user-active")
+async def toggle_user_active(req: models.UserInput, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+    if user and user["is_admin"]:
+        await dal.toggle_user_active(req.user_id)

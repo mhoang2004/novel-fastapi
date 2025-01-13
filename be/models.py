@@ -33,6 +33,10 @@ class PendingBookRequest(BaseModel):
     book_id: str
 
 
+class UserInput(BaseModel):
+    user_id: str
+
+
 class ChapterInsert(Chapter):
     novelId: str
     chapterNumber: int

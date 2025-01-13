@@ -122,14 +122,15 @@ async def get_history(limit=20, author=None):
             "_id": str(book["_id"]),
             "title": book.get("title", ""),
             "is_valid": book["is_valid"],
+            "is_approved": book["is_approved"],
             "updated_at": book.get("updated_at", ""),
         })
 
     return result
 
 
-async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None, sort_by=None):
-    query = {"is_valid": is_valid}
+async def get_books(is_approved=True, is_valid=True, limit=20, title=None, genre=None, author=None, sort_by=None):
+    query = {"is_valid": is_valid, "is_approved": is_approved}
 
     # Add title filter
     if title:
@@ -142,7 +143,6 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
     # Add author filter
     if author:
         try:
-            # Ensure author is a valid ObjectId
             query["author"] = ObjectId(author)
         except Exception as e:
             raise ValueError(f"Invalid author ID: {author}") from e
@@ -159,6 +159,7 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
             "cover": book.get("cover", ""),
             "rating": book["rating"],
             "is_valid": book["is_valid"],
+            "is_approved": book["is_approved"],
             "updated_at": book.get("updated_at", ""),
         })
 
@@ -203,6 +204,7 @@ async def active_book(book_id):
         {"_id": ObjectId(book_id)},
         {"$set": {
             "is_valid": True,
+            "is_approved": True,
             "updated_at": datetime.now()
         }})
 
@@ -210,6 +212,15 @@ async def active_book(book_id):
     await user_collection.update_one(
         {"_id": ObjectId(book["author"])},
         {"$set": {"is_author": True}})
+
+
+async def reject_book(book_id):
+    await book_collection.update_one(
+        {"_id": ObjectId(book_id)},
+        {"$set": {
+            "is_approved": True,
+            "updated_at": datetime.now()
+        }})
 
 
 async def get_reading_book(book_id):
@@ -222,8 +233,8 @@ async def get_reading_book(book_id):
     return {"title": book["title"], "numberChapter": number_chapter}
 
 
-async def get_book(book_id):
-    book = await book_collection.find_one({"_id": ObjectId(book_id)})
+async def get_book(book_id, is_valid=True):
+    book = await book_collection.find_one({"_id": ObjectId(book_id), "is_valid": is_valid})
 
     if book:
         # get genres
@@ -280,8 +291,12 @@ async def get_image(file_id: str):
 
 async def store_chapter(chapter, user_id):
     book = await book_collection.find_one({"_id": ObjectId(chapter.novelId)})
-    if (str(book["author"]) == user_id):
 
+    if (str(book["author"]) == user_id):
+        await book_collection.update_one(
+            {"_id": ObjectId(chapter.novelId)},
+            {"$set": {"updated_at": datetime.now()}}
+        )
         new_chapter = {
             "novel_id": ObjectId(chapter.novelId),
             "chapter_number": chapter.chapterNumber,
@@ -306,7 +321,8 @@ async def store_temp_novel(book, user_id):
         "cover": book.bookCover,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
-        "is_valid": False
+        "is_valid": False,
+        "is_approved": False
     }
 
     novel_result = await book_collection.insert_one(novel)

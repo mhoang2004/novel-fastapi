@@ -104,7 +104,11 @@ const BookDetails = () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/books/${bookId}`)
                 setBook(response.data)
-                setHoveredStar(parseInt(response.data.rating.averageRating))
+                if (response.data) {
+                    setHoveredStar(parseInt(response.data.rating.averageRating))
+                } else {
+                    setError('Book not found!')
+                }
             } catch (err) {
                 setError(err.message)
             } finally {

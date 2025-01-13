@@ -14,7 +14,20 @@ const AdminViewBook = ({ book }) => {
                     />
                 </div>
                 <p className="text-lg text-gray-500">Author: {book.author}</p>
-                <p className="text-lg text-gray-500">Genres: {book.genres.join(', ')}</p>
+                <p className="text-lg text-gray-500">
+                    Genres:{' '}
+                    {book.genres && book.genres.length > 0 ? (
+                        book.genres.map((genre, index) => (
+                            <span key={index}>
+                                {genre.name}
+                                {index !== book.genres.length - 1 && ', '}
+                            </span>
+                        ))
+                    ) : (
+                        <span>Others</span>
+                    )}
+                </p>
+
                 <p className="text-lg text-gray-500">
                     Created on: {new Date(book.created_at).toLocaleString()}
                 </p>

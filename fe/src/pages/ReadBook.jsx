@@ -106,7 +106,7 @@ const ReadBook = () => {
                         </button>
                     </div>
 
-                    <div className="min-h-screen">
+                    <div className="min-h-screen" style={{ whiteSpace: 'pre-line' }}>
                         <p className="m-6 text-2xl ">{chapter.content}</p>
                     </div>
 

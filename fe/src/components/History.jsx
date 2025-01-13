@@ -54,10 +54,12 @@ const History = () => {
                                     <td className="px-4 py-2 border-b">{item.title}</td>
                                     <td className="px-4 py-2 border-b">{item.updated_at}</td>
                                     <td className="px-4 py-2 border-b">
-                                        {item.is_valid ? (
+                                        {!item.is_approved ? (
+                                            <span className="text-yellow-500">Pending...</span>
+                                        ) : item.is_valid ? (
                                             <span className="text-green-500">Accepted</span>
                                         ) : (
-                                            <span className="text-yellow-500">Pending...</span>
+                                            <span className="text-red-500">Rejected</span>
                                         )}
                                     </td>
                                 </tr>

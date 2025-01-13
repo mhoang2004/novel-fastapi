@@ -17,6 +17,7 @@ const PendingBook = () => {
             const response = await axiosInstance.get(
                 `${import.meta.env.VITE_API_URL}/pending_books`
             )
+            console.log(response.data)
             setBooks(response.data)
         } catch (error) {
             console.error('Error fetching books:', error)
@@ -33,9 +34,10 @@ const PendingBook = () => {
 
     const handleReject = async () => {
         setLoading(true)
-        const response = await axiosInstance.delete(
-            `${import.meta.env.VITE_API_URL}/novel/${books[open]._id}`
-        )
+
+        const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/reject-book`, {
+            book_id: books[open]._id,
+        })
 
         alert(response.data.message)
         setIsModalOpen(false)
@@ -45,7 +47,7 @@ const PendingBook = () => {
 
     const handleAccept = async () => {
         setLoading(true)
-        const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/pending_book`, {
+        const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/active-book`, {
             book_id: books[open]._id,
         })
 

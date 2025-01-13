@@ -95,24 +95,35 @@ async def get_rating(book_id: str):
 
 @app.get("/pending_books")
 async def get_pending_books(access_token: str = Depends(oauth2_scheme)):
-    books = await dal.get_books(is_valid=False)
+    books = await dal.get_books(is_valid=False, is_approved=False)
     user = await auth.decode_token(access_token)
 
     novels = []
     if user and user["is_admin"]:
         for book in books:
-            novel = await dal.get_book(book["_id"])
+            novel = await dal.get_book(book["_id"], is_valid=False)
             novels.append(novel)
     return novels
 
 
-@app.post("/pending_book")
-async def post_pending_book(request: models.PendingBookRequest, access_token: str = Depends(oauth2_scheme)):
+@app.post("/active-book")
+async def active_book(request: models.PendingBookRequest, access_token: str = Depends(oauth2_scheme)):
     user = await auth.decode_token(access_token)
 
     if user and user["is_admin"]:
         await dal.active_book(request.book_id)
         return {"message": "Book upload successfully!!!"}
+    raise HTTPException(
+        status_code=403, detail="You don't have the permission")
+
+
+@app.post("/reject-book")
+async def reject_book(request: models.PendingBookRequest, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    if user and user["is_admin"]:
+        await dal.reject_book(request.book_id)
+        return {"message": "Reject successfully!!!"}
     raise HTTPException(
         status_code=403, detail="You don't have the permission")
 

@@ -17,7 +17,7 @@ const Header = () => {
     const handleSubmit = (e) => {
         e.preventDefault() // Prevent the default page reload
         if (search.trim() !== '') {
-            navigate(`/search?q=${search}`)
+            navigate(`/search?title=${search}`)
         }
     }
 

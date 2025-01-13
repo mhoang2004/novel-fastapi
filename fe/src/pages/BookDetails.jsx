@@ -18,10 +18,11 @@ const BookDetails = () => {
     const [comment, setComment] = useState('')
     const [comments, setComments] = useState([])
     const [isCommentDisabled, setIsCommentDisabled] = useState(true)
+    const [rating, setRating] = useState({})
     const [hoveredStar, setHoveredStar] = useState(0)
 
     const handleMouseEnter = (index) => setHoveredStar(index)
-    const handleMouseLeave = () => setHoveredStar(parseInt(book.rating.averageRating))
+    const handleMouseLeave = () => setHoveredStar(parseInt(rating.averageRating))
 
     const formatTimestamp = (timestamp) => {
         const date = new Date(timestamp)
@@ -60,6 +61,8 @@ const BookDetails = () => {
             star,
         })
 
+        await fetchRatings()
+        setHoveredStar(parseInt(rating.averageRating))
         alert(response.data.message)
     }
 
@@ -72,6 +75,15 @@ const BookDetails = () => {
             setError(err.message)
         } finally {
             setCommentLoading(false)
+        }
+    }
+
+    const fetchRatings = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/ratings/${bookId}`)
+            setRating(response.data)
+        } catch (err) {
+            setError(err.message)
         }
     }
 
@@ -102,6 +114,7 @@ const BookDetails = () => {
 
         fetchBook()
         fetchComments()
+        fetchRatings()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookId])
 
@@ -145,24 +158,24 @@ const BookDetails = () => {
                     <div className="mt-3">
                         <p>
                             <b>Author: </b>
-                            <a
-                                href={book.url_author}
+                            <Link
+                                to={`/search?author=${book.author_id}`}
                                 className="text-dark hover:text-gray-700 cursor-pointer"
                             >
                                 {book.author}
-                            </a>
+                            </Link>
                         </p>
                         <p className="mt-2">
                             <b>Genres: </b>
                             {book.genres && book.genres.length > 0 ? (
                                 book.genres.map((genre, index) => (
                                     <span key={index}>
-                                        <a
-                                            href={book.url_genre}
+                                        <Link
+                                            to={`/search?genre=${genre._id}`}
                                             className="text-dark hover:text-gray-700 cursor-pointer"
                                         >
-                                            {genre}
-                                        </a>
+                                            {genre.name}
+                                        </Link>
                                         {index < book.genres.length - 1 && ', '}{' '}
                                     </span>
                                 ))
@@ -201,12 +214,11 @@ const BookDetails = () => {
                         <p className="mt-2">
                             Rating:{' '}
                             <b>
-                                {book.rating.averageRating
-                                    ? parseFloat(book.rating.averageRating).toFixed(1)
+                                {rating.averageRating
+                                    ? parseFloat(rating.averageRating).toFixed(1)
                                     : '0.0'}
                             </b>
-                            /5.0 from <b>{book.rating.ratingCount ? book.rating.ratingCount : 0}</b>{' '}
-                            people
+                            /5.0 from <b>{rating.ratingCount}</b> people
                         </p>
                     </div>
 

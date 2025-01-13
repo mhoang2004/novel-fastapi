@@ -1,5 +1,6 @@
 
 
+from fastapi import FastAPI
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +14,7 @@ app = FastAPI()
 
 
 origins = [
-    "https://your-novels.netlify.app",
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
@@ -34,8 +35,8 @@ def read_root():
 
 
 @app.get("/books")
-async def get_books(sort: str | None = None, title: str | None = None):
-    books = await dal.get_books(sort_by=sort, title=title)
+async def get_books(sort: str | None = None, title: str | None = None, author: str | None = None, genre: str | None = None,):
+    books = await dal.get_books(sort_by=sort, title=title, author=author, genre=genre)
     return books
 
 
@@ -71,6 +72,12 @@ async def add_comment(input: models.CommentInput, access_token: str = Depends(oa
 async def get_comment(book_id: str):
     comments = await dal.get_comment(book_id)
     return comments
+
+
+@app.get("/ratings/{book_id}")
+async def get_rating(book_id: str):
+    ratings = await dal.get_rating(book_id)
+    return ratings
 
 
 @app.get("/pending_books")

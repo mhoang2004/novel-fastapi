@@ -8,17 +8,25 @@ import BookCard from '../components/BookCard'
 const SearchPage = () => {
     const location = useLocation()
     const queryParams = new URLSearchParams(location.search)
-    const searchQuery = queryParams.get('q') // Get the 'q' parameter
-    const [loading, setLoading] = useState(true)
 
+    const title = queryParams.get('title') || ''
+    const author = queryParams.get('author') || ''
+    const genre = queryParams.get('genre') || ''
+
+    const [loading, setLoading] = useState(true)
     const [books, setBooks] = useState([])
 
     useEffect(() => {
         const fetchBooks = async () => {
+            setLoading(true)
             try {
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/books?title=${searchQuery}`
-                )
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/books`, {
+                    params: {
+                        title,
+                        author,
+                        genre,
+                    },
+                })
 
                 setBooks(response.data)
             } catch (error) {
@@ -28,7 +36,7 @@ const SearchPage = () => {
             }
         }
         fetchBooks()
-    }, [searchQuery])
+    }, [title, author, genre])
 
     if (loading) {
         return (
@@ -41,16 +49,15 @@ const SearchPage = () => {
     return (
         <div className="min-h-screen bg-gray-100 py-8">
             <div className="container mx-auto px-4">
-                <h1 className="text-3xl font-bold text-center mb-8">Search Results</h1>
+                <h1 className="text-3xl font-bold text-center mb-8">
+                    Search {title && `Title: ${title}`} {author && `Author: ${author}`}{' '}
+                    {genre && `Genre: ${genre}`}{' '}
+                </h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {!loading && books.length === 0 ? (
+                    {books.length === 0 ? (
                         <p>Books not found!</p>
                     ) : (
-                        <>
-                            {books.map((book) => (
-                                <BookCard book={book} key={book._id} />
-                            ))}
-                        </>
+                        books.map((book) => <BookCard book={book} key={book._id} />)
                     )}
                 </div>
             </div>

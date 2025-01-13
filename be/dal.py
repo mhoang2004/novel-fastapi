@@ -137,7 +137,7 @@ async def get_books(is_valid=True, limit=20, title=None, genre=None, author=None
 
     # Add genre filter
     if genre:
-        query["genres"] = {"$in": [genre]}
+        query["genres"] = {"$in": [ObjectId(genre)]}
 
     # Add author filter
     if author:
@@ -231,7 +231,8 @@ async def get_book(book_id):
         for genre_id in book["genres"]:
             genre = await genre_collection.find_one({"_id": genre_id})
             if genre:
-                genre_names.append(genre["name"])
+                genre["_id"] = str(genre["_id"])
+                genre_names.append(genre)
 
         # get author
         author = await user_collection.find_one({"_id": book["author"]})
@@ -247,6 +248,7 @@ async def get_book(book_id):
 
         book["_id"] = str(book["_id"])
         book["rating"] = await get_rating(book["_id"])
+        book["author_id"] = str(book["author"])
         book["author"] = author["name"] if author["name"] else author["username"]
         book["genres"] = genre_names
         book["chapters"] = chapters

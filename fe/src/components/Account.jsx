@@ -10,7 +10,7 @@ import GenreStats from './GenreStats'
 import NovelStats from './NovelStats'
 
 const Account = () => {
-    const { user } = useContext(UserContext)
+    const { user, loadUserInfo } = useContext(UserContext)
     const navigate = useNavigate()
 
     const [name, setName] = useState('')
@@ -22,7 +22,7 @@ const Account = () => {
     }, [user, navigate])
 
     const handleSubmit = async (e) => {
-        e.preventDefault() // Prevent the form from reloading the page
+        e.preventDefault()
 
         if (!name.trim()) {
             alert('Please enter a pen name!')
@@ -31,6 +31,7 @@ const Account = () => {
 
         try {
             await axiosInstance.post(`${import.meta.env.VITE_API_URL}/update-pen-name`, { name })
+            loadUserInfo()
             alert('Pen name updated successfully!')
         } catch (error) {
             console.error('Error:', error)

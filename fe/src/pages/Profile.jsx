@@ -8,6 +8,7 @@ import YourBook from '../components/YourBook'
 import BookForm from '../components/BookForm'
 import PendingBook from '../components/PendingBook'
 import ManageUsers from '../components/ManageUsers'
+import ManageBooks from '../components/ManageBooks'
 
 const Profile = () => {
     const { user } = useContext(UserContext)
@@ -111,6 +112,19 @@ const Profile = () => {
                                     Manage Users
                                 </button>
                             </li>
+
+                            <li className="border-b-2 hover:bg-blue-300">
+                                <button
+                                    onClick={() => handleTabClick('managebook')}
+                                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                                        selectedTab === 'managebook'
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-transparent text-gray-700'
+                                    }`}
+                                >
+                                    Manage Books
+                                </button>
+                            </li>
                         </>
                     )}
 
@@ -138,6 +152,7 @@ const Profile = () => {
                 {selectedTab === 'createbook' && <BookForm />}
                 {selectedTab === 'pendingbook' && <PendingBook />}
                 {selectedTab === 'manageuser' && <ManageUsers />}
+                {selectedTab === 'managebook' && <ManageBooks />}
             </div>
         </div>
     )

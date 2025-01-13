@@ -3,15 +3,15 @@ import axiosInstance from '../api/axiosInstance'
 import Loading from './Loading'
 
 const ManageUsers = () => {
-    const [users, setUsers] = useState([])
+    const [books, setBooks] = useState([])
     const [loading, setLoading] = useState(true)
 
-    const fechUsers = async () => {
+    const fetchBooks = async () => {
         window.scrollTo(0, 0)
 
         try {
-            const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/get-users`)
-            setUsers(response.data)
+            const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/books`)
+            setBooks(response.data)
         } catch (error) {
             console.error('Error fetching books:', error)
         } finally {
@@ -20,7 +20,7 @@ const ManageUsers = () => {
     }
 
     useEffect(() => {
-        fechUsers()
+        fetchBooks()
     }, [])
 
     return (
@@ -29,10 +29,10 @@ const ManageUsers = () => {
                 <thead>
                     <tr>
                         <th className="px-4 py-2 border-b text-left">No.</th>
-                        <th className="px-4 py-2 border-b text-left">User ID</th>
-                        <th className="px-4 py-2 border-b text-left">User</th>
-                        <th className="px-4 py-2 border-b text-left">Role</th>
-                        <th className="px-4 py-2 border-b text-left">Date</th>
+                        <th className="px-4 py-2 border-b text-left">Book ID</th>
+                        <th className="px-4 py-2 border-b text-left">Title</th>
+                        <th className="px-4 py-2 border-b text-left">Rating</th>
+                        <th className="px-4 py-2 border-b text-left">Updated At</th>
                         <th className="px-4 py-2 border-b text-left">Action</th>
                     </tr>
                 </thead>
@@ -40,23 +40,21 @@ const ManageUsers = () => {
                     <Loading />
                 ) : (
                     <tbody>
-                        {users.map((user, index) => (
-                            <tr key={user._id} className="hover:bg-gray-100">
+                        {books.map((book, index) => (
+                            <tr key={book._id} className="hover:bg-gray-100">
                                 <td className="px-4 py-2 border-b">{index + 1}</td>
-                                <td className="px-4 py-2 border-b">{user._id}</td>
+                                <td className="px-4 py-2 border-b">{book._id}</td>
+                                <td className="px-4 py-2 border-b">{book.title}</td>
                                 <td className="px-4 py-2 border-b">
-                                    {user.name ? user.name : user.username}
+                                    {parseFloat(book.rating.averageRating).toFixed(2)}
                                 </td>
-                                <td className="px-4 py-2 border-b">
-                                    {user.is_author ? 'Author' : 'User'}
-                                </td>
-                                <td className="px-4 py-2 border-b">{user.create_at}</td>
+                                <td className="px-4 py-2 border-b">{book.updated_at}</td>
                                 <td className="px-4 py-2 border-b">
                                     <button
-                                        onClick={() => alert('Deactive user')}
+                                        onClick={() => alert('delete book')}
                                         className="bg-red-500 text-white font-medium  px-4 rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition"
                                     >
-                                        Deactive
+                                        Delete
                                     </button>
                                 </td>
                             </tr>

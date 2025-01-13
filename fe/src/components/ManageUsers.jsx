@@ -19,7 +19,7 @@ const ManageUsers = () => {
         }
     }
 
-    const handleDeactiveUser = async (userId) => {
+    const handleToggleActive = async (userId) => {
         window.scrollTo(0, 0)
 
         try {
@@ -75,14 +75,14 @@ const ManageUsers = () => {
                                 <td className="px-4 py-2 border-b">
                                     {user.is_active ? (
                                         <button
-                                            onClick={() => handleDeactiveUser(user._id)}
+                                            onClick={() => handleToggleActive(user._id)}
                                             className="w-28 bg-red-500 text-white font-medium  px-4 rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition"
                                         >
                                             Deactive
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => handleDeactiveUser(user._id)}
+                                            onClick={() => handleToggleActive(user._id)}
                                             className="w-28 bg-green-500 text-white font-medium  px-4 rounded shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition"
                                         >
                                             Active

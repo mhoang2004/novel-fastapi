@@ -37,6 +37,10 @@ class UserInput(BaseModel):
     user_id: str
 
 
+class CommentDeleteInput(BaseModel):
+    comment_id: str
+
+
 class ChapterInsert(Chapter):
     novelId: str
     chapterNumber: int

@@ -329,11 +329,11 @@ async def store_temp_novel(book, user_id):
 
 async def delete_novel_and_chapters(book_id: str):
     book = await book_collection.find_one({"_id": ObjectId(book_id)})
-    db["fs.files"].delete_one({"_id": book["cover"]})
-    db["fs.chunks"].delete_many({"files_id": book["cover"]})
+    await db["fs.files"].delete_one({"_id": book["cover"]})
+    await db["fs.chunks"].delete_many({"files_id": book["cover"]})
 
-    book_collection.delete_one({"_id": ObjectId(book_id)})
-    chapters_deleted = chapter_collection.delete_many(
+    await book_collection.delete_one({"_id": ObjectId(book_id)})
+    chapters_deleted = await chapter_collection.delete_many(
         {"novel_id": ObjectId(book_id)})
 
     return str(chapters_deleted)
@@ -450,3 +450,24 @@ async def toggle_user_active(user_id):
             {"_id": ObjectId(user_id)},
             {"$set": {"is_active": new_status}}
         )
+
+
+async def delete_comment(comment_id):
+    await comment_collection.delete_one({"_id": ObjectId(comment_id)})
+
+
+async def get_comments():
+    comments_cursor = comment_collection.find().sort("timestamp", -1).limit(20)
+
+    comments = []
+    async for comment in comments_cursor:
+        user = await get_user(_id=comment["user_id"])
+        comment["user"] = user["name"] if user["name"] else user["username"]
+
+        comment["_id"] = str(comment["_id"])
+        comment["novel_id"] = str(comment["novel_id"])
+        comment["user_id"] = str(comment["user_id"])
+
+        comments.append(comment)
+
+    return comments

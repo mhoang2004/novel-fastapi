@@ -5,6 +5,7 @@ import Loading from './Loading'
 const ManageUsers = () => {
     const [books, setBooks] = useState([])
     const [loading, setLoading] = useState(true)
+    const [isModalOpen, setIsModalOpen] = useState(0)
 
     const fetchBooks = async () => {
         window.scrollTo(0, 0)
@@ -17,6 +18,13 @@ const ManageUsers = () => {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleReject = async (index) => {
+        await axiosInstance.delete(`${import.meta.env.VITE_API_URL}/novel/${books[index]._id}`)
+
+        setIsModalOpen(0)
+        fetchBooks()
     }
 
     useEffect(() => {
@@ -51,7 +59,7 @@ const ManageUsers = () => {
                                 <td className="px-4 py-2 border-b">{book.updated_at}</td>
                                 <td className="px-4 py-2 border-b">
                                     <button
-                                        onClick={() => alert('delete book')}
+                                        onClick={() => setIsModalOpen(index)}
                                         className="bg-red-500 text-white font-medium  px-4 rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition"
                                     >
                                         Delete
@@ -62,6 +70,32 @@ const ManageUsers = () => {
                     </tbody>
                 )}
             </table>
+
+            {/* Modal */}
+            {isModalOpen !== 0 && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 shadow-lg">
+                        <h2 className="text-lg font-bold mb-4">Confirm Deletion</h2>
+                        <p className="mb-6 text-gray-600">
+                            Are you sure you want to delete this book?
+                        </p>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setIsModalOpen(0)}
+                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleReject(isModalOpen)}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

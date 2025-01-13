@@ -15,9 +15,6 @@ import auth
 app = FastAPI()
 load_dotenv()
 
-# Connect to MongoDB
-MONGODB_URI = os.getenv("MONGODB_URI")
-
 origins = [
     "http://localhost:5173",
     os.getenv("FRONTEND")
@@ -36,7 +33,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 @app.get("/")
 def read_root():
-
     return {"Hello": "World"}
 
 
@@ -78,6 +74,17 @@ async def add_comment(input: models.CommentInput, access_token: str = Depends(oa
 async def get_comment(book_id: str):
     comments = await dal.get_comment(book_id)
     return comments
+
+
+@app.get("/comments")
+async def get_comments(access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+
+    if user and user["is_admin"]:
+        comments = await dal.get_comments()
+        return comments
+    raise HTTPException(
+        status_code=403, detail="You don't have the permission")
 
 
 @app.get("/ratings/{book_id}")
@@ -270,3 +277,10 @@ async def toggle_user_active(req: models.UserInput, access_token: str = Depends(
     user = await auth.decode_token(access_token)
     if user and user["is_admin"]:
         await dal.toggle_user_active(req.user_id)
+
+
+@app.post("/delete-comment")
+async def delete_comment(req: models.CommentDeleteInput, access_token: str = Depends(oauth2_scheme)):
+    user = await auth.decode_token(access_token)
+    if user and user["is_admin"]:
+        await dal.delete_comment(req.comment_id)

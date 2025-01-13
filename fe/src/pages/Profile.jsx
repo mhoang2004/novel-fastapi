@@ -10,6 +10,8 @@ import PendingBook from '../components/PendingBook'
 import ManageUsers from '../components/ManageUsers'
 import ManageBooks from '../components/ManageBooks'
 
+import ManageComments from '../components/ManageComments'
+
 const Profile = () => {
     const { user } = useContext(UserContext)
     const navigate = useNavigate()
@@ -125,6 +127,19 @@ const Profile = () => {
                                     Manage Books
                                 </button>
                             </li>
+
+                            <li className="border-b-2 hover:bg-blue-300">
+                                <button
+                                    onClick={() => handleTabClick('managecomment')}
+                                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                                        selectedTab === 'managecomment'
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-transparent text-gray-700'
+                                    }`}
+                                >
+                                    Manage Comments
+                                </button>
+                            </li>
                         </>
                     )}
 
@@ -153,6 +168,7 @@ const Profile = () => {
                 {selectedTab === 'pendingbook' && <PendingBook />}
                 {selectedTab === 'manageuser' && <ManageUsers />}
                 {selectedTab === 'managebook' && <ManageBooks />}
+                {selectedTab === 'managecomment' && <ManageComments />}
             </div>
         </div>
     )

@@ -1,5 +1,7 @@
 
+import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -11,10 +13,14 @@ import dal
 import auth
 
 app = FastAPI()
+load_dotenv()
 
+# Connect to MongoDB
+MONGODB_URI = os.getenv("MONGODB_URI")
 
 origins = [
     "http://localhost:5173",
+    os.getenv("FRONTEND")
 ]
 
 app.add_middleware(
